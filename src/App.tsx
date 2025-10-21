@@ -98,10 +98,12 @@ const AppContent = () => {
         <Route
           path="/learning"
           element={
-            <>
-              <Navbar />
-              <LearningCenter />
-            </>
+            <PlayerProtectedRoute>
+              <>
+                <Navbar />
+                <LearningCenter />
+              </>
+            </PlayerProtectedRoute>
           }
         />
         <Route

@@ -117,14 +117,20 @@ const Navbar = () => {
     { name: t("navbar.home"), href: "/" },
     { name: t("navbar.leaderboard"), href: "/leaderboard" },
     { name: t("navbar.learning"), href: "/learning" },
-    { name: language === "en" ? "Resources" : "Ressources", href: "/resources" },
+    {
+      name: language === "en" ? "Resources" : "Ressources",
+      href: "/resources",
+    },
   ];
 
   const getAdminNavLinks = () => [
     { name: t("navbar.home"), href: "/" },
     { name: t("navbar.leaderboard"), href: "/leaderboard" },
     { name: t("navbar.learning"), href: "/learning" },
-    { name: language === "en" ? "Resources" : "Ressources", href: "/resources" },
+    {
+      name: language === "en" ? "Resources" : "Ressources",
+      href: "/resources",
+    },
     { name: t("navbar.manageLearning"), href: "/admin/learning" },
   ];
 
@@ -135,8 +141,10 @@ const Navbar = () => {
     : [
         { name: t("navbar.home"), href: "/" },
         { name: t("navbar.leaderboard"), href: "/leaderboard" },
-        { name: t("navbar.learning"), href: "/learning" },
-        { name: language === "en" ? "Resources" : "Ressources", href: "/resources" },
+        {
+          name: language === "en" ? "Resources" : "Ressources",
+          href: "/resources",
+        },
       ];
 
   return (
