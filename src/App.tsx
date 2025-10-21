@@ -16,6 +16,8 @@ import DatabaseTest from "./pages/DatabaseTest";
 import DatabasePermissionsTest from "./pages/DatabasePermissionsTest";
 import TestPlayerFetch from "./pages/TestPlayerFetch";
 import TestStorage from "./pages/TestStorage";
+import MonthlyWinners from "./pages/MonthlyWinners";
+import TestResourceFetch from "./pages/TestResourceFetch";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import PlayerProtectedRoute from "./components/PlayerProtectedRoute";
 import PlayerMessagesPanel from "./components/PlayerMessagesPanel";
@@ -92,6 +94,15 @@ const AppContent = () => {
             <>
               <Navbar />
               <Leaderboard />
+            </>
+          }
+        />
+        <Route
+          path="/monthly-winners"
+          element={
+            <>
+              <Navbar />
+              <MonthlyWinners />
             </>
           }
         />
@@ -177,6 +188,15 @@ const AppContent = () => {
             <>
               <Navbar />
               <TestPlayerFetch />
+            </>
+          }
+        />
+        <Route
+          path="/test-resource-fetch"
+          element={
+            <>
+              <Navbar />
+              <TestResourceFetch />
             </>
           }
         />

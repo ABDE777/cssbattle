@@ -20,6 +20,9 @@ import {
   Crown,
   Target,
   Users,
+  Calendar,
+  Star,
+  Sparkles,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,12 +46,24 @@ const Leaderboard = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [groupFilter, setGroupFilter] = useState<string>("all");
+  const [isContestFinished, setIsContestFinished] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { t, language } = useLanguage();
 
   // Prevent right-click for players and non-authenticated users
   usePreventRightClick();
+
+  // Check if contest is finished (last day of the month)
+  useEffect(() => {
+    const now = new Date();
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const isLastDay = now.getDate() === lastDay.getDate();
+
+    // For demo purposes, you might want to test this by setting it to true
+    // In production, use the actual date check
+    setIsContestFinished(isLastDay);
+  }, []);
 
   const fetchPlayers = async () => {
     setLoading(true);
@@ -187,6 +202,148 @@ const Leaderboard = () => {
   // Get unique groups for filter - use all groups from constants instead of calculating from players
   // This prevents the disappearing group options issue
   const allGroups = GROUP_OPTIONS.map((option) => option.value);
+
+  // Show winner celebration if contest is finished
+  if (isContestFinished && topThreePlayers.length > 0) {
+    const winner = topThreePlayers[0];
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden relative">
+        <Navbar />
+
+        {/* Animated Background Shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="hidden sm:block">
+            <FloatingShape
+              color="purple"
+              size={180}
+              top="5%"
+              left="80%"
+              delay={0}
+            />
+            <FloatingShape
+              color="pink"
+              size={120}
+              top="65%"
+              left="5%"
+              delay={1}
+              rotation
+            />
+            <FloatingShape
+              color="yellow"
+              size={80}
+              top="35%"
+              left="85%"
+              delay={0.5}
+            />
+          </div>
+          <div className="sm:hidden">
+            <FloatingShape
+              color="purple"
+              size={100}
+              top="10%"
+              left="80%"
+              delay={0}
+            />
+            <FloatingShape
+              color="pink"
+              size={70}
+              top="75%"
+              left="15%"
+              delay={1}
+              rotation
+            />
+          </div>
+        </div>
+
+        <main className="relative z-10 container mx-auto px-4 py-8 mt-20">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {language === "en" ? "Monthly Champion" : "Champion du Mois"}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                {language === "en"
+                  ? "Congratulations to our winner!"
+                  : "Félicitations à notre gagnant !"}
+              </p>
+            </div>
+
+            {/* Winner Celebration Card */}
+            <Card className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border-2 border-yellow-500/50 backdrop-blur-sm shadow-lg shadow-yellow-500/20 mb-8">
+              <CardContent className="p-8 text-center">
+                <div className="flex justify-center mb-6">
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-yellow-500 rounded-full blur-lg opacity-75 animate-pulse"></div>
+                    <div className="relative bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full p-4">
+                      <Crown className="w-16 h-16 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <h2 className="text-4xl font-bold text-yellow-500 mb-2">
+                  {winner.full_name}
+                </h2>
+
+                <div className="flex justify-center items-center gap-4 mb-6">
+                  <Badge
+                    className={`${getGroupColor(
+                      winner.group_name || ""
+                    )} py-1 px-3 text-lg`}
+                  >
+                    {winner.group_name || "N/A"}
+                  </Badge>
+                  <div className="text-3xl font-bold text-foreground">
+                    {winner.score?.toLocaleString() || "0"}{" "}
+                    {language === "en" ? "Points" : "Points"}
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <div className="inline-flex items-center gap-2 bg-yellow-500/20 px-4 py-2 rounded-full">
+                    <Star className="w-5 h-5 text-yellow-500" />
+                    <span className="font-bold text-yellow-500">
+                      {language === "en" ? "WINNER" : "GAGNANT"}
+                    </span>
+                    <Star className="w-5 h-5 text-yellow-500" />
+                  </div>
+                </div>
+
+                <p className="text-xl text-foreground mb-6">
+                  {language === "en"
+                    ? "Congratulations on winning this month's CSS Battle Championship!"
+                    : "Félicitations pour avoir remporté le Championnat CSS Battle de ce mois !"}
+                </p>
+
+                <div className="flex justify-center gap-4">
+                  <Sparkles className="w-6 h-6 text-yellow-500 animate-bounce" />
+                  <Sparkles
+                    className="w-6 h-6 text-yellow-500 animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  />
+                  <Sparkles
+                    className="w-6 h-6 text-yellow-500 animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Back to Leaderboard Button */}
+            <div className="text-center">
+              <Button
+                onClick={() => setIsContestFinished(false)}
+                className="bg-gradient-primary hover:scale-105 transition-transform"
+              >
+                {language === "en"
+                  ? "Back to Leaderboard"
+                  : "Retour au Classement"}
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden relative">

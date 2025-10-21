@@ -121,6 +121,10 @@ const Navbar = () => {
       name: language === "en" ? "Resources" : "Ressources",
       href: "/resources",
     },
+    {
+      name: language === "en" ? "Monthly Winners" : "Gagnants du Mois",
+      href: "/monthly-winners",
+    },
   ];
 
   const getAdminNavLinks = () => [
@@ -132,6 +136,10 @@ const Navbar = () => {
       href: "/resources",
     },
     { name: t("navbar.manageLearning"), href: "/admin/learning" },
+    {
+      name: language === "en" ? "Monthly Winners" : "Gagnants du Mois",
+      href: "/monthly-winners",
+    },
   ];
 
   const navLinks = isAdmin

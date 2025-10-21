@@ -2,12 +2,19 @@ import { Card } from "@/components/ui/card";
 import FloatingShape from "@/components/FloatingShape";
 import CodeBlock from "@/components/CodeBlock";
 import Navbar from "@/components/Navbar";
-import { Code2, Trophy, Users, Zap, Calendar } from "lucide-react";
+import { Code2, Trophy, Users, Zap, Calendar, Crown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+
+interface PlayerWinner {
+  full_name: string;
+  score: number;
+}
 
 const Index = () => {
   const { user } = useAuth();
@@ -15,6 +22,8 @@ const Index = () => {
   const { t, language } = useLanguage();
   const [playerCount, setPlayerCount] = useState<number | null>(null);
   const [daysLeftInMonth, setDaysLeftInMonth] = useState<number>(0);
+  const [isContestFinished, setIsContestFinished] = useState<boolean>(false);
+  const [currentWinner, setCurrentWinner] = useState<PlayerWinner | null>(null);
 
   const codeExample = [
     ".battle {",
@@ -55,7 +64,36 @@ const Index = () => {
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     const daysLeft = endOfMonth.getDate() - now.getDate() + 1;
     setDaysLeftInMonth(daysLeft);
+
+    // For demo purposes, we'll set contest as finished when there's 1 day left
+    // In a real implementation, you might want to check against a specific date
+    setIsContestFinished(daysLeft <= 1);
   };
+
+  // Get the current winner (top player)
+
+  useEffect(() => {
+    const fetchCurrentWinner = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("players")
+          .select("full_name, score")
+          .order("score", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (!error && data) {
+          setCurrentWinner(data);
+        }
+      } catch (error) {
+        console.error("Error fetching current winner:", error);
+      }
+    };
+
+    if (isContestFinished) {
+      fetchCurrentWinner();
+    }
+  }, [isContestFinished]);
 
   return (
     <main className="min-h-screen bg-background overflow-hidden relative font-heading">
@@ -149,6 +187,49 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Winner Celebration Section (shown when contest is finished) */}
+      {isContestFinished && currentWinner && (
+        <section className="relative z-10 container mx-auto px-4 pb-8">
+          <Card className="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-2 border-yellow-500/50 backdrop-blur-sm shadow-lg shadow-yellow-500/20 p-6 md:p-8 text-center max-w-3xl mx-auto">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-yellow-500 rounded-full blur-lg opacity-75 animate-pulse"></div>
+                <div className="relative bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full p-4">
+                  <Crown className="w-12 h-12 text-white" />
+                </div>
+              </div>
+            </div>
+
+            <h2 className="text-2xl md:text-3xl font-bold text-yellow-500 mb-2">
+              {language === "en" ? "Monthly Champion" : "Champion du Mois"}
+            </h2>
+
+            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4">
+              {currentWinner.full_name}
+            </h3>
+
+            <div className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              {currentWinner.score?.toLocaleString() || "0"}{" "}
+              {language === "en" ? "Points" : "Points"}
+            </div>
+
+            <p className="text-lg text-foreground mb-6">
+              {language === "en"
+                ? "Congratulations to our monthly winner!"
+                : "Félicitations à notre gagnant du mois !"}
+            </p>
+
+            <Link to="/monthly-winners">
+              <Button className="bg-gradient-primary hover:scale-105 transition-transform">
+                {language === "en"
+                  ? "View All Monthly Winners"
+                  : "Voir Tous les Gagnants"}
+              </Button>
+            </Link>
+          </Card>
+        </section>
+      )}
 
       {/* Info Cards */}
       <section className="relative z-10 container mx-auto px-4 pb-8 md:pb-12">

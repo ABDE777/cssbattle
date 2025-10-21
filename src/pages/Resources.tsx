@@ -41,11 +41,10 @@ interface LearningResource {
   description: string;
   url: string;
   type: "pdf" | "doc" | "link" | "video";
-  file_data?: string;
+  created_at: string;
   file_name?: string;
   file_size?: number;
   file_type?: string;
-  created_at?: string;
 }
 
 const Resources = () => {
@@ -66,19 +65,33 @@ const Resources = () => {
   const [resourceTypeFilter, setResourceTypeFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"date" | "title">("date");
   const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Fetch learning resources from Supabase
   useEffect(() => {
     const fetchResources = async () => {
       try {
         setLoadingResources(true);
+        setFetchError(null);
+        console.log("Fetching learning resources...");
+
+        // Only select the fields we need, avoiding large file_data fields unless necessary
         const { data, error } = await supabase
           .from("learning_resources")
-          .select("*")
+          .select(
+            "id, title, description, url, type, created_at, file_name, file_size, file_type"
+          )
           .order("created_at", { ascending: false });
 
         if (error) {
           console.error("Error fetching resources:", error);
+          console.error("Error details:", {
+            message: error.message,
+            code: error.code,
+            hint: error.hint,
+            details: error.details,
+          });
+          setFetchError(error.message);
           toast({
             title: language === "en" ? "Error" : "Erreur",
             description:
@@ -90,11 +103,23 @@ const Resources = () => {
           return;
         }
 
+        console.log("Successfully fetched resources:", data);
         if (data) {
           setResources(data as LearningResource[]);
         }
       } catch (error) {
-        console.error("Error fetching resources:", error);
+        console.error("Unexpected error fetching resources:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        setFetchError(errorMessage);
+        toast({
+          title: language === "en" ? "Error" : "Erreur",
+          description:
+            language === "en"
+              ? "Failed to load learning resources"
+              : "Échec du chargement des ressources",
+          variant: "destructive",
+        });
       } finally {
         setLoadingResources(false);
       }
@@ -172,18 +197,92 @@ const Resources = () => {
     setSelectedResource(null);
   };
 
-  const handleResourceAction = (resource: LearningResource) => {
+  const handleResourceAction = async (resource: LearningResource) => {
     if (resource.type === "link") {
       window.open(resource.url, "_blank");
     } else {
-      // For files, trigger download
-      if (resource.file_data) {
-        const link = document.createElement("a");
-        link.href = resource.file_data;
-        link.download = resource.file_name || "download";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // For files, we need to fetch the file data first
+      try {
+        // Fetch the complete resource with file_data
+        const { data, error } = await supabase
+          .from("learning_resources")
+          .select("file_data, file_name, file_type")
+          .eq("id", resource.id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching file data:", error);
+          toast({
+            title: language === "en" ? "Error" : "Erreur",
+            description:
+              language === "en"
+                ? "Failed to download file"
+                : "Échec du téléchargement du fichier",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (data && data.file_data) {
+          // Create a download link from base64 data
+          try {
+            // Decode base64 to binary
+            const byteString = atob(data.file_data);
+            const mimeString = data.file_type || "application/octet-stream";
+
+            // Convert to byte array
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+
+            // Create blob and download
+            const blob = new Blob([ab], { type: mimeString });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = data.file_name || "download";
+
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Clean up
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+          } catch (decodeError) {
+            console.error("Error decoding file data:", decodeError);
+            toast({
+              title: language === "en" ? "Error" : "Erreur",
+              description:
+                language === "en"
+                  ? "Failed to process file data"
+                  : "Échec du traitement des données du fichier",
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: language === "en" ? "Error" : "Erreur",
+            description:
+              language === "en"
+                ? "File data not available"
+                : "Données du fichier non disponibles",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Error downloading file:", error);
+        toast({
+          title: language === "en" ? "Error" : "Erreur",
+          description:
+            language === "en"
+              ? "Failed to download file"
+              : "Échec du téléchargement du fichier",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -344,6 +443,24 @@ const Resources = () => {
                   : "Chargement des ressources..."}
               </p>
             </div>
+          ) : fetchError ? (
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+              <CardContent className="py-12 text-center">
+                <div className="text-red-500 mb-4">
+                  <h3 className="text-xl font-semibold mb-2">
+                    {language === "en"
+                      ? "Error Loading Resources"
+                      : "Erreur de chargement des ressources"}
+                  </h3>
+                  <p className="text-sm">{fetchError}</p>
+                </div>
+                <p className="text-muted-foreground">
+                  {language === "en"
+                    ? "There was an error loading the learning resources. Please try again later."
+                    : "Une erreur s'est produite lors du chargement des ressources. Veuillez réessayer plus tard."}
+                </p>
+              </CardContent>
+            </Card>
           ) : filteredResources.length === 0 ? (
             <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
               <CardContent className="py-12 text-center">

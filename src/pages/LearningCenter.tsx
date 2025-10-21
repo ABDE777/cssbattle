@@ -113,14 +113,49 @@ const LearningCenter = () => {
       if (!user) return;
 
       try {
-        const { error } = await supabase.from("quiz_scores").insert({
-          player_id: user.id,
-          score: score,
-          total_questions: quizQuestions.length,
-          quiz_title: "CSS Battle Quiz",
-        });
+        // First, check if a score already exists for this player
+        const { data: existingScores, error: checkError } = await supabase
+          .from("quiz_scores")
+          .select("id")
+          .eq("player_id", user.id)
+          .limit(1);
 
-        if (error) throw error;
+        if (checkError) {
+          throw new Error(
+            `Failed to check existing scores: ${checkError.message}`
+          );
+        }
+
+        let error;
+        if (existingScores && existingScores.length > 0) {
+          // If score exists, update it instead of inserting
+          console.log("Updating existing quiz score for player", user.id);
+          const { error: updateError } = await supabase
+            .from("quiz_scores")
+            .update({
+              score: score,
+              total_questions: 6, // Fixed value since we know the quiz has 6 questions
+              quiz_title: "CSS Battle Quiz",
+              completed_at: new Date().toISOString(),
+            })
+            .eq("player_id", user.id);
+          error = updateError;
+        } else {
+          // If no score exists, insert a new one
+          console.log("Inserting new quiz score for player", user.id);
+          const { error: insertError } = await supabase
+            .from("quiz_scores")
+            .insert({
+              player_id: user.id,
+              score: score,
+              total_questions: 6, // Fixed value since we know the quiz has 6 questions
+              quiz_title: "CSS Battle Quiz",
+            });
+          error = insertError;
+        }
+
+        if (error)
+          throw new Error(`Database operation failed: ${error.message}`);
 
         const completionKey = `quiz_completed_${user.id}`;
         const scoreKey = `quiz_score_${user.id}`;
@@ -129,15 +164,22 @@ const LearningCenter = () => {
 
         setScoreSaved(true);
         toast({
-          title: "Success",
+          title: language === "en" ? "Success" : "Succès",
           description:
-            "Quiz completed successfully! Your score has been saved.",
+            language === "en"
+              ? "Quiz completed successfully! Your score has been saved."
+              : "Quiz terminé avec succès ! Votre score a été enregistré.",
         });
       } catch (e) {
         console.error("Failed to save quiz score", e);
+        const errorMessage =
+          e instanceof Error ? e.message : "Unknown error occurred";
         toast({
-          title: "Error",
-          description: "Failed to save quiz score. Please try again.",
+          title: language === "en" ? "Error" : "Erreur",
+          description:
+            language === "en"
+              ? `Failed to save quiz score: ${errorMessage}. Please try again.`
+              : `Échec de l'enregistrement du score du quiz : ${errorMessage}. Veuillez réessayer.`,
           variant: "destructive",
         });
       }
@@ -146,7 +188,7 @@ const LearningCenter = () => {
     if (quizCompleted && !scoreSaved) {
       saveScore(quizScore);
     }
-  }, [quizCompleted, scoreSaved, user, quizScore, toast]);
+  }, [quizCompleted, scoreSaved, user, quizScore, toast, language]);
 
   // Sample quiz questions
   const quizQuestions: QuizQuestion[] = [
@@ -438,6 +480,24 @@ const LearningCenter = () => {
         setQuizCompleted(true);
       }
     }, 2000);
+  };
+
+  const handleQuizReset = () => {
+    // Reset quiz state
+    setCurrentQuestion(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setQuizScore(0);
+    setQuizCompleted(false);
+    setScoreSaved(false);
+
+    // Clear localStorage for this user
+    if (user) {
+      const completionKey = `quiz_completed_${user.id}`;
+      const scoreKey = `quiz_score_${user.id}`;
+      localStorage.removeItem(completionKey);
+      localStorage.removeItem(scoreKey);
+    }
   };
 
   return (
