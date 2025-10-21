@@ -124,7 +124,9 @@ const Login = () => {
               </span>
             </h1>
           </div>
-          <ForgotPasswordForm onBackToLogin={() => setShowForgotPassword(false)} />
+          <ForgotPasswordForm
+            onBackToLogin={() => setShowForgotPassword(false)}
+          />
         </div>
       </div>
     );
@@ -223,7 +225,7 @@ const Login = () => {
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
               <Button
                 type="button"
                 variant="link"

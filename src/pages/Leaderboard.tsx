@@ -191,31 +191,60 @@ const Leaderboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden relative">
       <Navbar />
-      
-      {/* Animated Background Shapes */}
-      <FloatingShape color="purple" size={250} top="5%" left="80%" delay={0} />
-      <FloatingShape
-        color="pink"
-        size={180}
-        top="65%"
-        left="5%"
-        delay={1}
-        rotation
-      />
-      <FloatingShape
-        color="yellow"
-        size={120}
-        top="35%"
-        left="85%"
-        delay={0.5}
-      />
-      <FloatingShape
-        color="purple"
-        size={150}
-        top="80%"
-        left="20%"
-        delay={1.5}
-      />
+
+      {/* Animated Background Shapes - Made responsive */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Desktop shapes */}
+        <div className="hidden sm:block">
+          <FloatingShape
+            color="purple"
+            size={180}
+            top="5%"
+            left="80%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={120}
+            top="65%"
+            left="5%"
+            delay={1}
+            rotation
+          />
+          <FloatingShape
+            color="yellow"
+            size={80}
+            top="35%"
+            left="85%"
+            delay={0.5}
+          />
+          <FloatingShape
+            color="purple"
+            size={100}
+            top="80%"
+            left="20%"
+            delay={1.5}
+          />
+        </div>
+        {/* Mobile shapes - smaller and fewer to avoid clutter */}
+        <div className="sm:hidden">
+          <FloatingShape
+            color="purple"
+            size={100}
+            top="10%"
+            left="80%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={70}
+            top="75%"
+            left="15%"
+            delay={1}
+            rotation
+          />
+        </div>
+      </div>
 
       <main className="relative z-10 container mx-auto px-4 py-8 mt-20">
         <div className="max-w-4xl mx-auto">

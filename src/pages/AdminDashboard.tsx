@@ -78,6 +78,12 @@ const AdminDashboard = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
 
+  // Bulk action states
+  const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(
+    new Set()
+  );
+  const [isBulkActionLoading, setIsBulkActionLoading] = useState(false);
+
   // Advanced filter states
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [scoreMin, setScoreMin] = useState("");
@@ -94,6 +100,13 @@ const AdminDashboard = () => {
   }>({
     isOpen: false,
     player: null,
+  });
+
+  // State for bulk delete confirmation
+  const [bulkDeleteConfirmation, setBulkDeleteConfirmation] = useState<{
+    isOpen: boolean;
+  }>({
+    isOpen: false,
   });
 
   // State for create player form
@@ -236,7 +249,7 @@ const AdminDashboard = () => {
     try {
       if (!editingPlayer) return;
 
-      const updateData: any = {
+      const updateData: Partial<Player> = {
         full_name: playerData.full_name,
         email: playerData.email,
         cssbattle_profile_link: playerData.css_link || null,
@@ -626,6 +639,114 @@ const AdminDashboard = () => {
     }
   };
 
+  // Handle checkbox selection for a single player
+  const handlePlayerSelect = (playerId: string) => {
+    const newSelected = new Set(selectedPlayers);
+    if (newSelected.has(playerId)) {
+      newSelected.delete(playerId);
+    } else {
+      newSelected.add(playerId);
+    }
+    setSelectedPlayers(newSelected);
+  };
+
+  // Handle select all/none
+  const handleSelectAll = () => {
+    if (selectedPlayers.size === filteredPlayers.length) {
+      // If all are selected, deselect all
+      setSelectedPlayers(new Set());
+    } else {
+      // If not all are selected, select all
+      setSelectedPlayers(new Set(filteredPlayers.map((p) => p.id)));
+    }
+  };
+
+  // Bulk delete players
+  const handleBulkDelete = async () => {
+    if (selectedPlayers.size === 0) {
+      setError("No players selected for deletion");
+      return;
+    }
+
+    setIsBulkActionLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Delete all selected players
+      const playerIds = Array.from(selectedPlayers);
+      const deletePromises = playerIds.map((playerId) =>
+        supabase.from("players").delete().eq("id", playerId)
+      );
+
+      const results = await Promise.all(deletePromises);
+
+      // Check for any errors
+      const errors = results.filter((result) => result.error);
+      if (errors.length > 0) {
+        throw new Error(
+          `Failed to delete ${errors.length} players: ${errors[0].error?.message}`
+        );
+      }
+
+      setSuccess(`Successfully deleted ${playerIds.length} players`);
+      setSelectedPlayers(new Set());
+      fetchPlayers();
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      setError(`Failed to delete players: ${(err as Error).message}`);
+    } finally {
+      setIsBulkActionLoading(false);
+      setBulkDeleteConfirmation({ isOpen: false });
+    }
+  };
+
+  // Bulk password reset
+  const handleBulkPasswordReset = async () => {
+    if (selectedPlayers.size === 0) {
+      setError("No players selected for password reset");
+      return;
+    }
+
+    setIsBulkActionLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Get selected player emails
+      const selectedPlayerEmails = filteredPlayers
+        .filter((player) => selectedPlayers.has(player.id))
+        .map((player) => player.email);
+
+      // Send password reset emails
+      const resetPromises = selectedPlayerEmails.map((email) =>
+        supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        })
+      );
+
+      const results = await Promise.all(resetPromises);
+
+      // Check for any errors
+      const errors = results.filter((result) => result.error);
+      if (errors.length > 0) {
+        throw new Error(
+          `Failed to send password reset to ${errors.length} players: ${errors[0].error?.message}`
+        );
+      }
+
+      setSuccess(
+        `Successfully sent password reset emails to ${selectedPlayerEmails.length} players`
+      );
+      setSelectedPlayers(new Set());
+    } catch (err) {
+      console.error("Bulk password reset error:", err);
+      setError(`Failed to reset passwords: ${(err as Error).message}`);
+    } finally {
+      setIsBulkActionLoading(false);
+    }
+  };
+
   const analyzeRLSPolicies = async () => {
     console.log("ANALYZING RLS POLICIES");
 
@@ -956,31 +1077,60 @@ const AdminDashboard = () => {
         isOpen={isMessagesPanelOpen}
         onClose={() => setIsMessagesPanelOpen(false)}
       />
-      
-      {/* Animated Background Shapes */}
-      <FloatingShape color="purple" size={280} top="5%" left="85%" delay={0} />
-      <FloatingShape
-        color="pink"
-        size={200}
-        top="70%"
-        left="5%"
-        delay={1}
-        rotation
-      />
-      <FloatingShape
-        color="yellow"
-        size={140}
-        top="40%"
-        left="80%"
-        delay={0.5}
-      />
-      <FloatingShape
-        color="purple"
-        size={160}
-        top="85%"
-        left="15%"
-        delay={1.5}
-      />
+
+      {/* Animated Background Shapes - Made responsive */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Desktop shapes */}
+        <div className="hidden sm:block">
+          <FloatingShape
+            color="purple"
+            size={200}
+            top="5%"
+            left="85%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={150}
+            top="70%"
+            left="5%"
+            delay={1}
+            rotation
+          />
+          <FloatingShape
+            color="yellow"
+            size={100}
+            top="40%"
+            left="80%"
+            delay={0.5}
+          />
+          <FloatingShape
+            color="purple"
+            size={120}
+            top="85%"
+            left="15%"
+            delay={1.5}
+          />
+        </div>
+        {/* Mobile shapes - smaller and fewer to avoid clutter */}
+        <div className="sm:hidden">
+          <FloatingShape
+            color="purple"
+            size={120}
+            top="10%"
+            left="80%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={90}
+            top="75%"
+            left="15%"
+            delay={1}
+            rotation
+          />
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
@@ -1241,13 +1391,39 @@ const AdminDashboard = () => {
         {/* Players Table */}
         <Card className="bg-card/50 backdrop-blur-sm border-battle-purple/30">
           <div className="p-6 border-b border-battle-purple/30">
-            <div>
-              <h2 className="text-xl font-bold text-foreground">
-                Registered Players
-              </h2>
-              <p className="text-foreground/70">
-                Manage all registered players
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-foreground">
+                  Registered Players
+                </h2>
+                <p className="text-foreground/70">
+                  Manage all registered players
+                </p>
+              </div>
+
+              {/* Bulk Actions */}
+              {selectedPlayers.size > 0 && (
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setBulkDeleteConfirmation({ isOpen: true })}
+                    variant="outline"
+                    className="border-red-500/50 hover:bg-red-500/10 hover:text-foreground"
+                    disabled={isBulkActionLoading}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete ({selectedPlayers.size})
+                  </Button>
+                  <Button
+                    onClick={handleBulkPasswordReset}
+                    variant="outline"
+                    className="border-battle-purple/50 hover:bg-battle-purple/10 hover:text-foreground"
+                    disabled={isBulkActionLoading}
+                  >
+                    <Key className="w-4 h-4 mr-2" />
+                    Reset Password ({selectedPlayers.size})
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1256,6 +1432,18 @@ const AdminDashboard = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-battle-purple/5">
+                  <th className="px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedPlayers.size > 0 &&
+                        selectedPlayers.size === filteredPlayers.length
+                      }
+                      onChange={handleSelectAll}
+                      className="rounded border-battle-purple/30 bg-background/50 text-battle-purple focus:ring-battle-purple"
+                      title="Select all players"
+                    />
+                  </th>
                   <th className="px-4 py-2">Name</th>
                   <th className="px-4 py-2">Email</th>
                   <th className="px-4 py-2">Group</th>
@@ -1266,6 +1454,15 @@ const AdminDashboard = () => {
               <tbody>
                 {filteredPlayers.map((player) => (
                   <tr key={player.id}>
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedPlayers.has(player.id)}
+                        onChange={() => handlePlayerSelect(player.id)}
+                        className="rounded border-battle-purple/30 bg-background/50 text-battle-purple focus:ring-battle-purple"
+                        title={`Select player ${player.full_name}`}
+                      />
+                    </td>
                     <td className="px-4 py-2">{player.full_name || "N/A"}</td>
                     <td className="px-4 py-2">{player.email || "N/A"}</td>
                     <td className="px-4 py-2">
@@ -1316,8 +1513,74 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
-
         </Card>
+
+        {/* Bulk Delete Confirmation Modal */}
+        {bulkDeleteConfirmation.isOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <Card className="bg-card/90 backdrop-blur-sm border-battle-purple/30 w-full max-w-md">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-foreground">
+                    Confirm Bulk Deletion
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setBulkDeleteConfirmation({ isOpen: false })}
+                    className="text-foreground hover:bg-battle-purple/10 hover:text-foreground"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="mb-6">
+                  <p className="text-foreground/80 mb-4">
+                    Are you sure you want to delete{" "}
+                    <span className="font-bold text-foreground">
+                      {selectedPlayers.size} players
+                    </span>
+                    ? This action cannot be undone.
+                  </p>
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                    <p className="text-foreground text-sm">
+                      <strong>Warning:</strong> This will permanently remove the
+                      selected players' accounts and all associated data.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setBulkDeleteConfirmation({ isOpen: false })}
+                    variant="outline"
+                    className="flex-1 border-battle-purple/50 hover:bg-battle-purple/10 hover:text-foreground"
+                    disabled={isBulkActionLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleBulkDelete}
+                    className="flex-1 bg-red-600 hover:bg-red-700"
+                    disabled={isBulkActionLoading}
+                  >
+                    {isBulkActionLoading ? (
+                      <>
+                        <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Players
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Delete Confirmation Modal */}
         {deleteConfirmation.isOpen && deleteConfirmation.player && (
@@ -1648,15 +1911,19 @@ const AdminDashboard = () => {
             setEditingPlayer(null);
           }}
           onSave={handleSavePlayer}
-          player={editingPlayer ? {
-            id: editingPlayer.id,
-            full_name: editingPlayer.full_name,
-            email: editingPlayer.email,
-            phone: editingPlayer.phone || "",
-            css_link: editingPlayer.cssbattle_profile_link || "",
-            group_name: editingPlayer.group_name || "",
-            score: editingPlayer.score || 0,
-          } : null}
+          player={
+            editingPlayer
+              ? {
+                  id: editingPlayer.id,
+                  full_name: editingPlayer.full_name,
+                  email: editingPlayer.email,
+                  phone: editingPlayer.phone || "",
+                  css_link: editingPlayer.cssbattle_profile_link || "",
+                  group_name: editingPlayer.group_name || "",
+                  score: editingPlayer.score || 0,
+                }
+              : null
+          }
           mode="edit"
         />
       </div>
@@ -1665,5 +1932,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
-

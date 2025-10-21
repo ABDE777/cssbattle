@@ -18,7 +18,6 @@ AS $$
       auth.jwt() ->> 'email' IN (
         'ibrahimchallal@admincss.com',
         'younesshlibi@admincss.com',
-        'hamdiboumlik@admincss.com',
         'mazgouraabdalmonim@gmail.com'
       )
     )

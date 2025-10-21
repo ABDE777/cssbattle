@@ -62,7 +62,8 @@ const LearningCenter = () => {
       setTimeout(async () => {
         try {
           const completionKey = `quiz_completed_${user.id}`;
-          const localStorageCompleted = localStorage.getItem(completionKey) === "true";
+          const localStorageCompleted =
+            localStorage.getItem(completionKey) === "true";
 
           if (localStorageCompleted) {
             setQuizCompleted(true);
@@ -128,7 +129,8 @@ const LearningCenter = () => {
         setScoreSaved(true);
         toast({
           title: "Success",
-          description: "Quiz completed successfully! Your score has been saved.",
+          description:
+            "Quiz completed successfully! Your score has been saved.",
         });
       } catch (e) {
         console.error("Failed to save quiz score", e);
@@ -375,7 +377,8 @@ const LearningCenter = () => {
   const handleAnswerSelect = (answerIndex: number) => {
     if (quizCompleted) {
       toast({
-        title: language === "en" ? "Quiz Already Completed" : "Quiz déjà terminé",
+        title:
+          language === "en" ? "Quiz Already Completed" : "Quiz déjà terminé",
         description:
           language === "en"
             ? "You have already completed this quiz."
@@ -390,7 +393,8 @@ const LearningCenter = () => {
   const handleQuizSubmit = () => {
     if (quizCompleted) {
       toast({
-        title: language === "en" ? "Quiz Already Completed" : "Quiz déjà terminé",
+        title:
+          language === "en" ? "Quiz Already Completed" : "Quiz déjà terminé",
         description:
           language === "en"
             ? "You have already completed this quiz."
@@ -402,7 +406,10 @@ const LearningCenter = () => {
 
     if (selectedAnswer === null) {
       toast({
-        title: language === "en" ? "No Answer Selected" : "Aucune réponse sélectionnée",
+        title:
+          language === "en"
+            ? "No Answer Selected"
+            : "Aucune réponse sélectionnée",
         description:
           language === "en"
             ? "Please select an answer before submitting"
@@ -436,11 +443,59 @@ const LearningCenter = () => {
     <div className="min-h-screen bg-background overflow-hidden relative">
       <Navbar />
 
-      {/* Animated Background Shapes */}
-      <FloatingShape color="purple" size={200} top="10%" left="5%" delay={0} />
-      <FloatingShape color="pink" size={150} top="70%" left="85%" delay={1} rotation />
-      <FloatingShape color="yellow" size={100} top="40%" left="80%" delay={0.5} />
-      <FloatingShape color="purple" size={120} top="85%" left="15%" delay={1.5} />
+      {/* Animated Background Shapes - Made responsive */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Desktop shapes */}
+        <div className="hidden sm:block">
+          <FloatingShape
+            color="purple"
+            size={150}
+            top="10%"
+            left="5%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={100}
+            top="70%"
+            left="85%"
+            delay={1}
+            rotation
+          />
+          <FloatingShape
+            color="yellow"
+            size={70}
+            top="40%"
+            left="80%"
+            delay={0.5}
+          />
+          <FloatingShape
+            color="purple"
+            size={80}
+            top="85%"
+            left="15%"
+            delay={1.5}
+          />
+        </div>
+        {/* Mobile shapes - smaller and fewer to avoid clutter */}
+        <div className="sm:hidden">
+          <FloatingShape
+            color="purple"
+            size={100}
+            top="15%"
+            left="80%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={70}
+            top="75%"
+            left="15%"
+            delay={1}
+            rotation
+          />
+        </div>
+      </div>
 
       <main className="relative z-10 container mx-auto px-4 py-8 mt-16">
         <div className="max-w-4xl mx-auto">
@@ -448,9 +503,7 @@ const LearningCenter = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
               {t("learning.title")}
             </h1>
-            <p className="text-muted-foreground">
-              {t("learning.subtitle")}
-            </p>
+            <p className="text-muted-foreground">{t("learning.subtitle")}</p>
           </div>
 
           {/* Video Section */}
@@ -458,7 +511,9 @@ const LearningCenter = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {videoCompleted && <CheckCircle className="text-green-500" />}
-                {language === "en" ? "CSS Battle Tutorial" : "Tutoriel CSS Battle"}
+                {language === "en"
+                  ? "CSS Battle Tutorial"
+                  : "Tutoriel CSS Battle"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -476,11 +531,17 @@ const LearningCenter = () => {
                 {!videoCompleted && (
                   <Button onClick={handleVideoComplete} className="gap-2">
                     <CheckCircle className="w-4 h-4" />
-                    {language === "en" ? "Mark as Complete" : "Marquer comme terminé"}
+                    {language === "en"
+                      ? "Mark as Complete"
+                      : "Marquer comme terminé"}
                   </Button>
                 )}
                 {(videoCompleted || isAdmin) && (
-                  <Button onClick={handleVideoReset} variant="outline" className="gap-2">
+                  <Button
+                    onClick={handleVideoReset}
+                    variant="outline"
+                    className="gap-2"
+                  >
                     <RotateCcw className="w-4 h-4" />
                     {language === "en" ? "Reset" : "Réinitialiser"}
                   </Button>
@@ -517,7 +578,9 @@ const LearningCenter = () => {
               <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
                 <CardHeader>
                   <CardTitle>
-                    {language === "en" ? "Quiz" : "Quiz"} - {language === "en" ? "Question" : "Question"} {currentQuestion + 1}/{quizQuestions.length}
+                    {language === "en" ? "Quiz" : "Quiz"} -{" "}
+                    {language === "en" ? "Question" : "Question"}{" "}
+                    {currentQuestion + 1}/{quizQuestions.length}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -526,33 +589,41 @@ const LearningCenter = () => {
                       {quizQuestions[currentQuestion].question}
                     </h3>
                     <div className="space-y-3">
-                      {quizQuestions[currentQuestion].options.map((option, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleAnswerSelect(index)}
-                          disabled={showResult}
-                          className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                            selectedAnswer === index
-                              ? "border-primary bg-primary/10"
-                              : "border-border hover:border-primary/50"
-                          } ${showResult ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
-                        >
-                          {option}
-                        </button>
-                      ))}
+                      {quizQuestions[currentQuestion].options.map(
+                        (option, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleAnswerSelect(index)}
+                            disabled={showResult}
+                            className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                              selectedAnswer === index
+                                ? "border-primary bg-primary/10"
+                                : "border-border hover:border-primary/50"
+                            } ${
+                              showResult
+                                ? "cursor-not-allowed opacity-50"
+                                : "cursor-pointer"
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        )
+                      )}
                     </div>
                   </div>
 
                   {showResult && (
                     <div
                       className={`p-4 rounded-lg mb-4 ${
-                        selectedAnswer === quizQuestions[currentQuestion].correctAnswer
+                        selectedAnswer ===
+                        quizQuestions[currentQuestion].correctAnswer
                           ? "bg-green-500/10 border border-green-500"
                           : "bg-red-500/10 border border-red-500"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        {selectedAnswer === quizQuestions[currentQuestion].correctAnswer ? (
+                        {selectedAnswer ===
+                        quizQuestions[currentQuestion].correctAnswer ? (
                           <>
                             <CheckCircle className="text-green-500" />
                             <span className="font-semibold text-green-500">
@@ -568,7 +639,9 @@ const LearningCenter = () => {
                           </>
                         )}
                       </div>
-                      <p className="text-sm">{quizQuestions[currentQuestion].explanation}</p>
+                      <p className="text-sm">
+                        {quizQuestions[currentQuestion].explanation}
+                      </p>
                     </div>
                   )}
 
@@ -593,7 +666,9 @@ const LearningCenter = () => {
               <CardContent className="py-12 text-center">
                 <AlertCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">
-                  {language === "en" ? "Complete the Video First" : "Terminez d'abord la vidéo"}
+                  {language === "en"
+                    ? "Complete the Video First"
+                    : "Terminez d'abord la vidéo"}
                 </h3>
                 <p className="text-muted-foreground">
                   {language === "en"

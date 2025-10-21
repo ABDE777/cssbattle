@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserProfile = async (session: Session) => {
     try {
       // Fetch player data with all required fields
-      let { data: profile, error } = await supabase
+      const { data: profile, error } = await supabase
         .from("players")
         .select(
           "id, full_name, email, cssbattle_profile_link, group_name, phone, video_completed"
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           )
           .eq("email", session.user.email)
           .single();
-          
+
         if (emailError) {
           console.error("AuthContext - Error fetching by email:", emailError);
           // Return basic user data if no profile found
@@ -81,8 +81,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             unreadMessageCount: 0,
           };
         }
-        
-        profile = emailProfile;
+
+        // Use email profile if found
+        const profile = emailProfile;
       }
 
       // Fetch unread message count for the player
@@ -147,6 +148,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } = await supabase.auth.getSession();
 
         if (session?.user && mounted) {
+          // Check if there's an admin session active
+          const hardcodedAdmin = localStorage.getItem("hardcoded_admin");
+          if (hardcodedAdmin) {
+            // Admin is logged in, logout player
+            await supabase.auth.signOut();
+            if (mounted) {
+              setUser(null);
+            }
+            return;
+          }
+
           const userProfile = await fetchUserProfile(session);
           setUser(userProfile);
         }
@@ -162,6 +174,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
+
+      // Check if there's an admin session active
+      const hardcodedAdmin = localStorage.getItem("hardcoded_admin");
+      if (hardcodedAdmin && session?.user) {
+        // Admin is logged in, logout player session
+        supabase.auth.signOut();
+        if (mounted) {
+          setUser(null);
+        }
+        return;
+      }
 
       if (session?.user) {
         fetchUserProfile(session).then((userProfile) => {

@@ -44,7 +44,9 @@ const ProfileNew = () => {
   const { user, logout } = useAuth();
   const { isAdmin } = useAdmin();
   const [isEditing, setIsEditing] = useState(false);
-  const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null);
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -67,7 +69,9 @@ const ProfileNew = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("players")
-        .select("id, full_name, email, phone, group_name, cssbattle_profile_link")
+        .select(
+          "id, full_name, email, phone, group_name, cssbattle_profile_link"
+        )
         .eq("id", user.id)
         .single();
 
@@ -186,53 +190,83 @@ const ProfileNew = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 mt-20 overflow-hidden relative">
-      {/* Animated Background Shapes */}
-      <FloatingShape color="purple" size={220} top="8%" left="85%" delay={0} />
-      <FloatingShape
-        color="pink"
-        size={160}
-        top="75%"
-        left="10%"
-        delay={1}
-        rotation
-      />
-      <FloatingShape
-        color="yellow"
-        size={110}
-        top="45%"
-        left="80%"
-        delay={0.5}
-      />
-      <FloatingShape
-        color="purple"
-        size={130}
-        top="85%"
-        left="25%"
-        delay={1.5}
-      />
+    <div className="min-h-screen bg-background py-8 sm:py-12 px-4 sm:px-6 mt-16 sm:mt-20 overflow-hidden relative">
+      {/* Animated Background Shapes - Made responsive and contained */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Desktop shapes */}
+        <div className="hidden sm:block">
+          <FloatingShape
+            color="purple"
+            size={80}
+            top="5%"
+            left="90%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={60}
+            top="75%"
+            left="5%"
+            delay={1}
+            rotation
+          />
+          <FloatingShape
+            color="yellow"
+            size={50}
+            top="45%"
+            left="85%"
+            delay={0.5}
+          />
+          <FloatingShape
+            color="purple"
+            size={60}
+            top="85%"
+            left="15%"
+            delay={1.5}
+          />
+        </div>
+        {/* Mobile shapes - smaller and fewer to avoid clutter */}
+        <div className="sm:hidden">
+          <FloatingShape
+            color="purple"
+            size={50}
+            top="10%"
+            left="80%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={40}
+            top="80%"
+            left="15%"
+            delay={1}
+            rotation
+          />
+        </div>
+      </div>
 
       <div className="max-w-4xl mx-auto relative z-10">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-foreground hover:bg-battle-purple/10"
+            className="flex items-center gap-2 text-foreground hover:bg-battle-purple/10 px-2 py-1 h-auto"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            <span className="hidden xs:inline">Back to Home</span>
           </Button>
-          <h1 className="text-3xl font-bold text-center flex-1 text-foreground">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center flex-1 text-foreground px-2">
             CSS{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
               BATTLE
             </span>{" "}
-            Championship
+            <span className="hidden xs:inline">Championship</span>
           </h1>
-          <div className="w-24"></div> {/* Spacer for alignment */}
+          <div className="w-12 sm:w-16 md:w-24"></div>{" "}
+          {/* Spacer for alignment on larger screens */}
         </div>
 
-        <Card className="bg-card/50 backdrop-blur-sm border-battle-purple/30 p-6 md:p-8 max-w-2xl mx-auto">
+        <Card className="bg-card/50 backdrop-blur-sm border-battle-purple/30 p-4 sm:p-6 md:p-8 max-w-2xl mx-auto w-full">
           <div className="text-center mb-8">
             <div className="w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center mx-auto mb-4">
               <UserIcon className="w-12 h-12 text-foreground" />
@@ -282,7 +316,7 @@ const ProfileNew = () => {
                     value={formData.fullName}
                     onChange={handleInputChange}
                     placeholder="Enter your full name"
-                    className="pl-10 bg-background/50 border-battle-purple/30"
+                    className="pl-10 bg-background/50 border-battle-purple/30 w-full"
                     required
                   />
                 </div>
@@ -302,8 +336,10 @@ const ProfileNew = () => {
               </Label>
               <div className="p-3 bg-background/50 border border-battle-purple/30 rounded-md">
                 <div className="flex items-center">
-                  <Mail className="w-4 h-4 mr-2 text-muted-foreground" />
-                  {playerProfile?.email || "Not provided"}
+                  <Mail className="w-4 h-4 mr-2 text-muted-foreground flex-shrink-0" />
+                  <span className="break-all">
+                    {playerProfile?.email || "Not provided"}
+                  </span>
                 </div>
               </div>
               <p className="text-xs text-foreground/50">
@@ -327,15 +363,15 @@ const ProfileNew = () => {
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
                     placeholder="Enter your phone number"
-                    className="pl-10 bg-background/50 border-battle-purple/30"
+                    className="pl-10 bg-background/50 border-battle-purple/30 w-full"
                   />
                 </div>
               ) : (
                 <div className="p-3 bg-background/50 border border-battle-purple/30 rounded-md">
                   {playerProfile?.phone ? (
                     <div className="flex items-center">
-                      <Phone className="w-4 h-4 mr-2 text-muted-foreground" />
-                      {playerProfile.phone}
+                      <Phone className="w-4 h-4 mr-2 text-muted-foreground flex-shrink-0" />
+                      <span className="break-all">{playerProfile.phone}</span>
                     </div>
                   ) : (
                     <span className="text-foreground/50">Not provided</span>
@@ -356,7 +392,7 @@ const ProfileNew = () => {
                   value={formData.group}
                   onValueChange={handleGroupChange}
                 >
-                  <SelectTrigger className="bg-background/50 border-battle-purple/30">
+                  <SelectTrigger className="bg-background/50 border-battle-purple/30 w-full">
                     <SelectValue placeholder="Select your group" />
                   </SelectTrigger>
                   <SelectContent>
@@ -370,12 +406,15 @@ const ProfileNew = () => {
               ) : (
                 <div className="p-3 bg-background/50 border border-battle-purple/30 rounded-md">
                   <div className="flex items-center">
-                    <Users className="w-4 h-4 mr-2 text-muted-foreground" />
-                    {playerProfile?.group_name
-                      ? GROUP_OPTIONS.find(
-                          (option) => option.value === playerProfile.group_name
-                        )?.label || playerProfile.group_name
-                      : "No group assigned"}
+                    <Users className="w-4 h-4 mr-2 text-muted-foreground flex-shrink-0" />
+                    <span className="break-all">
+                      {playerProfile?.group_name
+                        ? GROUP_OPTIONS.find(
+                            (option) =>
+                              option.value === playerProfile.group_name
+                          )?.label || playerProfile.group_name
+                        : "No group assigned"}
+                    </span>
                   </div>
                 </div>
               )}
@@ -397,21 +436,21 @@ const ProfileNew = () => {
                     value={formData.cssBattleProfileLink}
                     onChange={handleInputChange}
                     placeholder="https://cssbattle.dev/player/..."
-                    className="pl-10 bg-background/50 border-battle-purple/30"
+                    className="pl-10 bg-background/50 border-battle-purple/30 w-full"
                   />
                 </div>
               ) : (
                 <div className="p-3 bg-background/50 border border-battle-purple/30 rounded-md">
                   {playerProfile?.cssbattle_profile_link ? (
                     <div className="flex items-center">
-                      <Link className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <Link className="w-4 h-4 mr-2 text-muted-foreground flex-shrink-0" />
                       <a
                         href={playerProfile.cssbattle_profile_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-battle-purple hover:underline"
+                        className="text-battle-purple hover:underline break-all"
                       >
-                        View Profile
+                        {playerProfile.cssbattle_profile_link}
                       </a>
                     </div>
                   ) : (
@@ -421,7 +460,7 @@ const ProfileNew = () => {
               )}
             </div>
 
-            <div className="pt-6 flex flex-col sm:flex-row gap-4">
+            <div className="pt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
               {isEditing ? (
                 <>
                   <Button
@@ -432,7 +471,8 @@ const ProfileNew = () => {
                       // Reset form data to original values
                       setFormData({
                         fullName: playerProfile?.full_name || "",
-                        cssBattleProfileLink: playerProfile?.cssbattle_profile_link || "",
+                        cssBattleProfileLink:
+                          playerProfile?.cssbattle_profile_link || "",
                         phoneNumber: playerProfile?.phone || "",
                         group: playerProfile?.group_name || "",
                       });
@@ -449,7 +489,10 @@ const ProfileNew = () => {
                     className="flex-1 bg-gradient-primary hover:scale-105 transition-transform shadow-glow"
                   >
                     {isSubmitting ? (
-                      "Saving..."
+                      <span className="flex items-center justify-center">
+                        <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                        Saving...
+                      </span>
                     ) : (
                       <>
                         <Save className="w-4 h-4 mr-2" />
@@ -459,7 +502,7 @@ const ProfileNew = () => {
                   </Button>
                 </>
               ) : (
-                <>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
                   <Button
                     type="button"
                     onClick={() => setIsEditing(true)}
@@ -476,11 +519,12 @@ const ProfileNew = () => {
                       className="flex-1 border-battle-purple/50 hover:bg-battle-purple/10 hover:text-foreground"
                     >
                       <Shield className="w-4 h-4 mr-2" />
-                      Admin Dashboard
+                      <span className="hidden xs:inline">Admin Dashboard</span>
+                      <span className="xs:hidden">Admin</span>
                     </Button>
                   )}
                   <LogoutButton className="flex-1" />
-                </>
+                </div>
               )}
             </div>
           </form>

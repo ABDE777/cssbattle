@@ -77,6 +77,35 @@ const ImportPlayersModal = ({
   const validatePlayers = async (players: PlayerData[]) => {
     const results: Array<{ row: number; message: string }> = [];
     const validGroups = GROUP_OPTIONS.map((g) => g.value);
+    const cssLinks = new Set<string>();
+
+    // First, collect all CSS Battle profile links from the import data
+    const importCssLinks = players
+      .map((player) => player.cssbattle_profile_link)
+      .filter(
+        (link) => link !== undefined && link !== null && link.trim() !== ""
+      );
+
+    // Check if any of these links already exist in the database
+    let existingLinks: string[] = [];
+    if (importCssLinks.length > 0) {
+      try {
+        const { data, error } = await supabase
+          .from("players")
+          .select("cssbattle_profile_link")
+          .in("cssbattle_profile_link", importCssLinks);
+
+        if (error) {
+          console.error("Error checking existing CSS Battle links:", error);
+        } else if (data) {
+          existingLinks = data
+            .map((player) => player.cssbattle_profile_link)
+            .filter((link): link is string => link !== null);
+        }
+      } catch (error) {
+        console.error("Error checking existing CSS Battle links:", error);
+      }
+    }
 
     players.forEach((player, index) => {
       // Check for required fields
@@ -101,6 +130,26 @@ const ImportPlayersModal = ({
           row: index + 2,
           message: `Invalid group: ${player.group_name}`,
         });
+      }
+
+      // Validate CSS Battle profile link uniqueness
+      if (player.cssbattle_profile_link) {
+        // Check for duplicates within the import file
+        if (cssLinks.has(player.cssbattle_profile_link)) {
+          results.push({
+            row: index + 2,
+            message: `Duplicate CSS Battle profile link in import file: ${player.cssbattle_profile_link}`,
+          });
+        }
+        // Check if link already exists in database
+        else if (existingLinks.includes(player.cssbattle_profile_link)) {
+          results.push({
+            row: index + 2,
+            message: `CSS Battle profile link already exists in database: ${player.cssbattle_profile_link}`,
+          });
+        } else {
+          cssLinks.add(player.cssbattle_profile_link);
+        }
       }
     });
 
@@ -145,7 +194,7 @@ const ImportPlayersModal = ({
 
       for (let i = 0; i < players.length; i += BATCH_SIZE) {
         const batch = players.slice(i, i + BATCH_SIZE);
-        
+
         await Promise.all(
           batch.map(async (player) => {
             try {
@@ -183,7 +232,8 @@ const ImportPlayersModal = ({
                       email: player.email,
                       group_name: player.group_name,
                       phone: player.phone || null,
-                      cssbattle_profile_link: player.cssbattle_profile_link || null,
+                      cssbattle_profile_link:
+                        player.cssbattle_profile_link || null,
                       verified_ofppt: player.verified_ofppt || false,
                       score: 0,
                     },
@@ -201,7 +251,9 @@ const ImportPlayersModal = ({
               }
             } catch (error) {
               importErrors.push(
-                `Row ${players.indexOf(player) + 2}: ${(error as Error).message}`
+                `Row ${players.indexOf(player) + 2}: ${
+                  (error as Error).message
+                }`
               );
             }
           })

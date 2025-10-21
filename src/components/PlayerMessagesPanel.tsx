@@ -67,7 +67,9 @@ const PlayerMessagesPanel = ({
   const [adminMessages, setAdminMessages] = useState<ContactMessage[]>([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const [replyToMessage, setReplyToMessage] = useState<ContactMessage | null>(null);
+  const [replyToMessage, setReplyToMessage] = useState<ContactMessage | null>(
+    null
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to latest message
@@ -165,7 +167,6 @@ const PlayerMessagesPanel = ({
       const hardcodedAdmins = [
         { name: "Ibrahim Challal", email: "ibrahimchallal@admincss.com" },
         { name: "Youness Hlibi", email: "younesshlibi@admincss.com" },
-        { name: "Hamdi Boumlik", email: "hamdiboumlik@admincss.com" },
         {
           name: "Mazgour Abdalmonim",
           email: "mazgouraabdalmonim@admincss.com",
@@ -328,8 +329,11 @@ const PlayerMessagesPanel = ({
 
     try {
       // Prepare message with reply info if replying
-      const messageText = replyToMessage 
-        ? `[Replying to: "${replyToMessage.message.substring(0, 50)}..."] ${newMessage}`
+      const messageText = replyToMessage
+        ? `[Replying to: "${replyToMessage.message.substring(
+            0,
+            50
+          )}..."] ${newMessage}`
         : newMessage;
 
       const { error } = await supabase.from("contact_messages").insert({
@@ -427,13 +431,20 @@ const PlayerMessagesPanel = ({
                       // Get messages for this admin
                       const adminMsgs = messages.filter(
                         (msg) =>
-                          (msg.sender_email === admin.email && msg.recipient_email === playerEmail) ||
-                          (msg.sender_email === playerEmail && msg.recipient_email === admin.email)
+                          (msg.sender_email === admin.email &&
+                            msg.recipient_email === playerEmail) ||
+                          (msg.sender_email === playerEmail &&
+                            msg.recipient_email === admin.email)
                       );
                       const unreadCount = adminMsgs.filter(
-                        (msg) => msg.status === "unread" && msg.recipient_email === playerEmail
+                        (msg) =>
+                          msg.status === "unread" &&
+                          msg.recipient_email === playerEmail
                       ).length;
-                      const lastMessage = adminMsgs.length > 0 ? adminMsgs[adminMsgs.length - 1] : null;
+                      const lastMessage =
+                        adminMsgs.length > 0
+                          ? adminMsgs[adminMsgs.length - 1]
+                          : null;
 
                       return (
                         <div
@@ -548,10 +559,14 @@ const PlayerMessagesPanel = ({
                       <div className="space-y-4">
                         {adminMessages.map((message) => {
                           // Check if this message contains a reply
-                          const replyMatch = message.message.match(/^\[Replying to: "(.*?)"\] (.*)$/);
+                          const replyMatch = message.message.match(
+                            /^\[Replying to: "(.*?)"\] (.*)$/
+                          );
                           const replyText = replyMatch ? replyMatch[1] : null;
-                          const actualMessage = replyMatch ? replyMatch[2] : message.message;
-                          
+                          const actualMessage = replyMatch
+                            ? replyMatch[2]
+                            : message.message;
+
                           return (
                             <div
                               key={`${message.id}-${message.created_at}`}
@@ -575,9 +590,9 @@ const PlayerMessagesPanel = ({
                                     {replyText}
                                   </div>
                                 )}
-                                
+
                                 <p className="text-sm">{actualMessage}</p>
-                                
+
                                 <div
                                   className={`text-xs mt-1 flex items-center justify-between ${
                                     message.sender_email === playerEmail
@@ -600,7 +615,7 @@ const PlayerMessagesPanel = ({
                                       minute: "2-digit",
                                     })}
                                   </div>
-                                  
+
                                   {/* Reply button */}
                                   <Button
                                     size="sm"
@@ -642,8 +657,12 @@ const PlayerMessagesPanel = ({
                       <div className="mb-2 p-2 bg-muted rounded-lg flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm">
                           <Reply className="w-4 h-4 text-primary" />
-                          <span className="text-muted-foreground">Replying to:</span>
-                          <span className="truncate max-w-[200px]">{replyToMessage.message}</span>
+                          <span className="text-muted-foreground">
+                            Replying to:
+                          </span>
+                          <span className="truncate max-w-[200px]">
+                            {replyToMessage.message}
+                          </span>
                         </div>
                         <Button
                           size="sm"
@@ -655,7 +674,7 @@ const PlayerMessagesPanel = ({
                         </Button>
                       </div>
                     )}
-                    
+
                     <div className="flex gap-2">
                       <Input
                         value={newMessage}

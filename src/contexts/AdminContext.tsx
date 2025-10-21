@@ -32,7 +32,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
     const initializeAdmin = async () => {
       try {
-        const hardcodedAdmin = safeLocalStorage.getItem("hardcoded_admin");
+        const hardcodedAdmin = localStorage.getItem("hardcoded_admin");
 
         if (hardcodedAdmin) {
           try {
@@ -43,7 +43,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
             }
           } catch (error) {
             console.error("Invalid admin data in localStorage:", error);
-            safeLocalStorage.removeItem("hardcoded_admin");
+            localStorage.removeItem("hardcoded_admin");
           }
         }
       } catch (error) {
@@ -70,7 +70,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           }
         } catch (error) {
           console.error("Invalid admin data:", error);
-          safeLocalStorage.removeItem("hardcoded_admin");
+          localStorage.removeItem("hardcoded_admin");
         }
       } else {
         if (mounted) {
@@ -88,23 +88,25 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return;
 
-      // Check for hardcoded admin first
-      const hardcodedAdmin = safeLocalStorage.getItem("hardcoded_admin");
-      if (hardcodedAdmin) {
-        try {
-          const adminData = JSON.parse(hardcodedAdmin);
-          if (mounted) {
-            setAdmin(adminData as User);
-            setIsAdmin(true);
-          }
-          return;
-        } catch (error) {
-          console.error("Invalid admin data:", error);
-          safeLocalStorage.removeItem("hardcoded_admin");
-        }
-      }
-
+      // Check if there's a player session active when admin context is needed
       if (session?.user) {
+        // Check for hardcoded admin first
+        const hardcodedAdmin = localStorage.getItem("hardcoded_admin");
+        if (hardcodedAdmin) {
+          try {
+            const adminData = JSON.parse(hardcodedAdmin);
+            if (mounted) {
+              setAdmin(adminData as User);
+              setIsAdmin(true);
+            }
+            return;
+          } catch (error) {
+            console.error("Invalid admin data:", error);
+            localStorage.removeItem("hardcoded_admin");
+          }
+        }
+
+        // Check if user has admin role in database
         try {
           const { data: roleData, error } = await supabase
             .from("user_roles")
@@ -128,8 +130,23 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } else if (mounted) {
-        setAdmin(null);
-        setIsAdmin(false);
+        // Check if there's still a hardcoded admin session
+        const hardcodedAdmin = localStorage.getItem("hardcoded_admin");
+        if (hardcodedAdmin) {
+          try {
+            const adminData = JSON.parse(hardcodedAdmin);
+            if (mounted) {
+              setAdmin(adminData as User);
+              setIsAdmin(true);
+            }
+          } catch (error) {
+            console.error("Invalid admin data:", error);
+            localStorage.removeItem("hardcoded_admin");
+          }
+        } else {
+          setAdmin(null);
+          setIsAdmin(false);
+        }
       }
     });
 
@@ -138,7 +155,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       subscription?.unsubscribe();
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, [])
+  }, []);
 
   const fetchUnreadMessageCount = async () => {
     if (!admin?.email) return;
@@ -159,7 +176,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    safeLocalStorage.removeItem("hardcoded_admin");
+    localStorage.removeItem("hardcoded_admin");
     setAdmin(null);
     setIsAdmin(false);
     setUnreadMessageCount(0);

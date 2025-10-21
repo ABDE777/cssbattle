@@ -539,39 +539,80 @@ const AdminLearningManagement = () => {
 
   return (
     <div className="min-h-screen bg-background py-12 px-4 sm:px-6 mt-16 overflow-hidden relative">
-      {/* Animated Background Shapes */}
-      <FloatingShape
-        color="purple"
-        size={300}
-        top="5%"
-        left="10%"
-        delay={0.5}
-      />
-      <FloatingShape color="pink" size={150} top="20%" left="50%" delay={1} />
-      <FloatingShape color="pink" size={200} top="70%" left="70%" delay={0} />
-      <FloatingShape color="purple" size={250} top="8%" left="85%" delay={0} />
-      <FloatingShape
-        color="pink"
-        size={180}
-        top="75%"
-        left="10%"
-        delay={1}
-        rotation
-      />
-      <FloatingShape
-        color="yellow"
-        size={130}
-        top="45%"
-        left="80%"
-        delay={0.5}
-      />
-      <FloatingShape
-        color="purple"
-        size={150}
-        top="80%"
-        left="20%"
-        delay={1.5}
-      />
+      {/* Animated Background Shapes - Made responsive */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Desktop shapes */}
+        <div className="hidden sm:block">
+          <FloatingShape
+            color="purple"
+            size={200}
+            top="5%"
+            left="10%"
+            delay={0.5}
+          />
+          <FloatingShape
+            color="pink"
+            size={100}
+            top="20%"
+            left="50%"
+            delay={1}
+          />
+          <FloatingShape
+            color="pink"
+            size={150}
+            top="70%"
+            left="70%"
+            delay={0}
+          />
+          <FloatingShape
+            color="purple"
+            size={180}
+            top="8%"
+            left="85%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={120}
+            top="75%"
+            left="10%"
+            delay={1}
+            rotation
+          />
+          <FloatingShape
+            color="yellow"
+            size={90}
+            top="45%"
+            left="80%"
+            delay={0.5}
+          />
+          <FloatingShape
+            color="purple"
+            size={100}
+            top="80%"
+            left="20%"
+            delay={1.5}
+          />
+        </div>
+        {/* Mobile shapes - smaller and fewer to avoid clutter */}
+        <div className="sm:hidden">
+          <FloatingShape
+            color="purple"
+            size={120}
+            top="10%"
+            left="80%"
+            delay={0}
+          />
+          <FloatingShape
+            color="pink"
+            size={90}
+            top="75%"
+            left="15%"
+            delay={1}
+            rotation
+          />
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
