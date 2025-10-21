@@ -11,6 +11,7 @@ import {
   RotateCcw,
   Trophy,
 } from "lucide-react";
+import YouTubePlayer from "@/components/YouTubePlayer";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/contexts/AdminContext";
@@ -517,36 +518,13 @@ const LearningCenter = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="relative aspect-video rounded-lg overflow-hidden bg-black mb-4">
-                <iframe
-                  src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0&modestbranding=1&controls=1&disablekb=1`}
-                  title="CSS Battle Tutorial"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                ></iframe>
-              </div>
-
-              <div className="flex gap-2 justify-center">
-                {!videoCompleted && (
-                  <Button onClick={handleVideoComplete} className="gap-2">
-                    <CheckCircle className="w-4 h-4" />
-                    {language === "en"
-                      ? "Mark as Complete"
-                      : "Marquer comme terminé"}
-                  </Button>
-                )}
-                {(videoCompleted || isAdmin) && (
-                  <Button
-                    onClick={handleVideoReset}
-                    variant="outline"
-                    className="gap-2"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    {language === "en" ? "Reset" : "Réinitialiser"}
-                  </Button>
-                )}
-              </div>
+              <YouTubePlayer
+                videoId={YOUTUBE_VIDEO_ID}
+                onVideoComplete={handleVideoComplete}
+                onVideoReset={handleVideoReset}
+                isCompleted={videoCompleted}
+                isAdmin={isAdmin}
+              />
             </CardContent>
           </Card>
 
