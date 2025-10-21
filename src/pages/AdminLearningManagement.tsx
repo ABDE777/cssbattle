@@ -46,6 +46,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RichTextEditor from "@/components/RichTextEditor";
 
 interface QuizScore {
   id: string;
@@ -806,16 +807,16 @@ const AdminLearningManagement = () => {
                           </div>
                           <div>
                             <Label>Description</Label>
-                            <Textarea
+                            <RichTextEditor
                               value={newResource.description}
-                              onChange={(e) =>
+                              onChange={(value) =>
                                 setNewResource({
                                   ...newResource,
-                                  description: e.target.value,
+                                  description: value,
                                 })
                               }
-                              placeholder="Brief description"
-                              rows={4}
+                              placeholder="Enter detailed description..."
+                              className="min-h-[120px]"
                             />
                           </div>
                           <div>

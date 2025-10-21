@@ -43,12 +43,13 @@ All colors MUST be HSL.
     --battle-pink: 300 65% 72%;
     --battle-yellow: 48 95% 76%;
     --battle-black: 0 0% 0%;
-    --battle-blue: 220 90% 60%; /* New blue color for light mode */
-    
+    --battle-blue: 220 90% 60%;
+    /* New blue color for light mode */
+
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(280 87% 53%), hsl(300 65% 72%));
     --gradient-accent: linear-gradient(90deg, hsl(280 87% 53%), hsl(48 95% 76%));
-    
+
     /* Shadows */
     --shadow-glow: 0 0 40px hsl(280 87% 53% / 0.5);
     --shadow-glow-pink: 0 0 40px hsl(300 65% 72% / 0.5);
@@ -72,7 +73,8 @@ All colors MUST be HSL.
     --secondary: 300 65% 72%;
     --secondary-foreground: 0 0% 0%;
 
-    --accent: 220 90% 60%; /* Blue instead of yellow in light mode */
+    --accent: 220 90% 60%;
+    /* Blue instead of yellow in light mode */
     --accent-foreground: 0 0% 100%;
 
     --muted: 0 0% 85%;
@@ -91,18 +93,18 @@ All colors MUST be HSL.
     --battle-yellow: 48 95% 76%;
     --battle-black: 0 0% 0%;
     --battle-blue: 220 90% 60%;
-    
+
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(280 87% 53%), hsl(300 65% 72%));
     --gradient-accent: linear-gradient(90deg, hsl(280 87% 53%), hsl(220 90% 60%));
-    
+
     /* Shadows */
     --shadow-glow: 0 0 40px hsl(280 87% 53% / 0.5);
     --shadow-glow-pink: 0 0 40px hsl(300 65% 72% / 0.5);
     --shadow-glow-yellow: 0 0 40px hsl(48 95% 76% / 0.5);
     --shadow-glow-blue: 0 0 40px hsl(220 90% 60% / 0.5);
   }
-  
+
   * {
     @apply border-border;
   }
@@ -110,7 +112,7 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
-  
+
   .bg-gradient-accent {
     background: var(--gradient-accent);
   }
@@ -120,15 +122,15 @@ All colors MUST be HSL.
   .text-battle-accent {
     @apply text-battle-yellow;
   }
-  
+
   .bg-battle-accent {
     @apply bg-battle-yellow;
   }
-  
+
   .border-battle-accent {
     @apply border-battle-yellow;
   }
-  
+
   .shadow-glow-accent {
     box-shadow: var(--shadow-glow-yellow);
   }
@@ -138,16 +140,25 @@ All colors MUST be HSL.
   .light .text-battle-accent {
     @apply text-battle-blue;
   }
-  
+
   .light .bg-battle-accent {
     @apply bg-battle-blue;
   }
-  
+
   .light .border-battle-accent {
     @apply border-battle-blue;
   }
-  
+
   .light .shadow-glow-accent {
     box-shadow: var(--shadow-glow-blue);
   }
+}
+
+/* Add placeholder styling for rich text editor */
+[contenteditable]:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  /* gray-400 */
+  pointer-events: none;
+  display: block;
 }
