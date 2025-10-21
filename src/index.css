@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 280 87% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 300 65% 72%;
+    --secondary-foreground: 0 0% 0%;
+
+    --accent: 48 95% 76%;
+    --accent-foreground: 0 0% 0%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 280 87% 53%;
+
+    --radius: 0.75rem;
+
+    /* Custom CSS Battle colors */
+    --battle-purple: 280 87% 53%;
+    --battle-pink: 300 65% 72%;
+    --battle-yellow: 48 95% 76%;
+    --battle-black: 0 0% 0%;
+    --battle-blue: 220 90% 60%; /* New blue color for light mode */
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(280 87% 53%), hsl(300 65% 72%));
+    --gradient-accent: linear-gradient(90deg, hsl(280 87% 53%), hsl(48 95% 76%));
+    
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(280 87% 53% / 0.5);
+    --shadow-glow-pink: 0 0 40px hsl(300 65% 72% / 0.5);
+    --shadow-glow-yellow: 0 0 40px hsl(48 95% 76% / 0.5);
+    --shadow-glow-blue: 0 0 40px hsl(220 90% 60% / 0.5);
+  }
+
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 95%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 95%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 280 87% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 300 65% 72%;
+    --secondary-foreground: 0 0% 0%;
+
+    --accent: 220 90% 60%; /* Blue instead of yellow in light mode */
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 0 0% 85%;
+    --muted-foreground: 0 0% 35%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 80%;
+    --input: 0 0% 80%;
+    --ring: 280 87% 53%;
+
+    /* Custom CSS Battle colors */
+    --battle-purple: 280 87% 53%;
+    --battle-pink: 300 65% 72%;
+    --battle-yellow: 48 95% 76%;
+    --battle-black: 0 0% 0%;
+    --battle-blue: 220 90% 60%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(280 87% 53%), hsl(300 65% 72%));
+    --gradient-accent: linear-gradient(90deg, hsl(280 87% 53%), hsl(220 90% 60%));
+    
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(280 87% 53% / 0.5);
+    --shadow-glow-pink: 0 0 40px hsl(300 65% 72% / 0.5);
+    --shadow-glow-yellow: 0 0 40px hsl(48 95% 76% / 0.5);
+    --shadow-glow-blue: 0 0 40px hsl(220 90% 60% / 0.5);
+  }
+  
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  .bg-gradient-accent {
+    background: var(--gradient-accent);
+  }
+}
+
+@layer utilities {
+  .text-battle-accent {
+    @apply text-battle-yellow;
+  }
+  
+  .bg-battle-accent {
+    @apply bg-battle-yellow;
+  }
+  
+  .border-battle-accent {
+    @apply border-battle-yellow;
+  }
+  
+  .shadow-glow-accent {
+    box-shadow: var(--shadow-glow-yellow);
+  }
+}
+
+@layer utilities {
+  .light .text-battle-accent {
+    @apply text-battle-blue;
+  }
+  
+  .light .bg-battle-accent {
+    @apply bg-battle-blue;
+  }
+  
+  .light .border-battle-accent {
+    @apply border-battle-blue;
+  }
+  
+  .light .shadow-glow-accent {
+    box-shadow: var(--shadow-glow-blue);
+  }
+}
