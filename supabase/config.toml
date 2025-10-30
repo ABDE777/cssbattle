@@ -1,0 +1,7 @@
+project_id = "ubjttptjigwbjwqyiwmi"
+
+[functions.admin-manage-password]
+verify_jwt = false
+
+[functions.manage-master-badge]
+verify_jwt = false
